@@ -2,6 +2,7 @@
 
 namespace App\Services\Commands\User;
 
+use App\Services\Keyboards\StartKeyboard;
 use Longman\TelegramBot\Commands\UserCommand;
 use Longman\TelegramBot\Entities\Keyboard;
 use Longman\TelegramBot\Entities\ServerResponse;
@@ -54,11 +55,8 @@ class StartCommand extends UserCommand
                 'text'          => $text,
             ]);
         }
-        return Request::sendMessage([
-            'chat_id'       => $this->getMessage()->getChat()->getId(),
-            'text'          => 'aaa',
-        ]);
-        // return $this->send('Сегодня для тебя 🤌 :', $this->getMessage()->getChat()->getId(), StartKeyboard::make()->getKeyboard());
+
+        return $this->send('Сегодня для тебя 🤌 :', $this->getMessage()->getChat()->getId(), StartKeyboard::make()->getKeyboard());
     }
 
     /**

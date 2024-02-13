@@ -5,7 +5,7 @@ namespace App\Services\Keyboards;
 class AppKeyboardList
 {
     private array $keyboards = [
-        Start::class,
+        StartKeyboard::class,
     ];
 
     /**
