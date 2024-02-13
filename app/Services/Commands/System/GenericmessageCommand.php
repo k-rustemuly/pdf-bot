@@ -87,15 +87,9 @@ class GenericmessageCommand extends SystemCommand
             $doc = $message->{'get' . ucfirst($message_type)}();
             $file_id = $doc->getFileId();
             $file    = Request::getFile(['file_id' => $file_id]);
-            if ($file->isOk()) {
-                $tg_file_path = $file->getFilePath();
-                Request::sendMessage([
-                    'chat_id' => $chat_id,
-                    'text'  => $tg_file_path,
-                ]);
-                $base_download_uri = str_replace('{API_KEY}', $this->telegram->getApiKey(), '/file/bot{API_KEY}');
+            if ($file->isOk() && Request::downloadFile($file->getResult())) {
                 $parser = new Parser();
-                $pdf = $parser->parseFile("{$base_download_uri}/{$tg_file_path}");
+                $pdf = $parser->parseFile($download_path . '/' . $file->getResult()->getFilePath());
                 $pages = $pdf->getPages();
                 $texts = [];
                 foreach($pages as $page) {
