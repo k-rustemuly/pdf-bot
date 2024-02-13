@@ -40,7 +40,7 @@ class Kaspi extends TelegramButton
         }
         return Request::sendMessage([
             'chat_id' => $accountInfo->getId(),
-            'text'    => 'PDF-ті жүктеңіз'
+            'text'    => 'PDF-ті жүктеңіз'.$message->getType()
         ]);
     }
 }
