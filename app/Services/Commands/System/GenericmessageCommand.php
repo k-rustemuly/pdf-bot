@@ -70,21 +70,22 @@ class GenericmessageCommand extends SystemCommand
         $message = $this->getMessage();
         $chat    = $message->getChat();
         $chat_id = $chat->getId();
+
+        $data = [
+            'chat_id' => $chat_id,
+            'text'    => 'xmmmm'
+        ];
         if($message->getType() == 'document') {
-            $data = [
-                'chat_id'      => $chat_id,
-            ];
             $doc = call_user_func('get' . $message->getType(), $message);
             ($message->getType() === 'document') && $doc = $doc[0];
             $file_id = $doc->getFileId();
             $file = Request::getFile(['file_id' => $file_id]);
             if ($file->isOk() && Request::downloadFile($file->getResult())) {
                 $data['text'] = $message->getType() . ' file is located at: ' . $this->telegram->getDownloadPath() . '/' . $file->getResult()->getFilePath();
-            } else {
-                $data['text'] = 'Failed to download.';
             }
-            return Request::sendMessage($data);
         }
+        return Request::sendMessage($data);
+
         // If a conversation is busy, execute the conversation command after handling the message.
         $conversation = new Conversation(
             $message->getFrom()->getId(),
