@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Services\TelegramBots\InfoBot\Keyboards;
+namespace App\Services\Keyboards;
 
 class AppKeyboardList
 {
     private array $keyboards = [
+        Start::class,
     ];
 
     /**

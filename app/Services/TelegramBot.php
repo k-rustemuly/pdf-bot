@@ -149,6 +149,11 @@ abstract class TelegramBot
         $this->telegram->enableMysql(config('telegram.mysql'));
     }
 
+    public function useGetUpdatesWithoutDatabase(): void
+    {
+        $this->telegram->useGetUpdatesWithoutDatabase();
+    }
+
     /**
      * @throws TelegramException
      */

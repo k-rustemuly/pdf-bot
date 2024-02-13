@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Services\TelegramBots\InfoBot\Keyboards\AppKeyboardList;
+use App\Services\Keyboards\AppKeyboardList;
 use Longman\TelegramBot\Exception\TelegramException;
 
 class InfoBot extends TelegramBot
@@ -21,6 +21,11 @@ class InfoBot extends TelegramBot
 
     public function setBot(): void
     {
+        $this->telegram->useGetUpdatesWithoutDatabase();
+        $buttons = AppKeyboardList::getAllButtons();
 
+        foreach ($buttons as $button) {
+            $this->addFunctionInCallback(new $button());
+        }
     }
 }

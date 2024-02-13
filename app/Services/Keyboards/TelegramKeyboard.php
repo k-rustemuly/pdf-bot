@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\TelegramBots\InfoBot\Keyboards;
+namespace App\Services\Keyboards;
 
 use App\Services\Entities\TelegramButton;
 use App\Support\Traits\Makeable;
