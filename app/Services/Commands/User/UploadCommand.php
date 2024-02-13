@@ -35,11 +35,6 @@ class UploadCommand extends UserCommand
     protected $version = '0.2.0';
 
     /**
-     * @var bool
-     */
-    protected $need_mysql = true;
-
-    /**
      * Main command execution
      *
      * @return ServerResponse
