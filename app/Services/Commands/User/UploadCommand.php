@@ -55,15 +55,6 @@ class UploadCommand extends UserCommand
 
         // Initialise the data array for the response
         $data = ['chat_id' => $chat_id];
-
-        if ($chat->isGroupChat() || $chat->isSuperGroup()) {
-            // Reply to message id is applied by default
-            $data['reply_to_message_id'] = $message->getMessageId();
-            // Force reply is applied by default to work with privacy on
-            $data['reply_markup'] = Keyboard::forceReply(['selective' => true]);
-        }
-
-        // Start conversation
         $message_type = $message->getType();
 
         if (in_array($message_type, ['audio', 'document', 'photo', 'video', 'voice'], true)) {
@@ -81,7 +72,7 @@ class UploadCommand extends UserCommand
             }
 
         } else {
-            $data['text'] = 'Please upload the file now';
+            $data['text'] = 'Please upload the file now'.$download_path;
         }
 
         return Request::sendMessage($data);
