@@ -85,14 +85,14 @@ class GenericmessageCommand extends SystemCommand
                 return $this->replyToChat('Download path has not been defined or does not exist.');
             }
             $doc = $message->{'get' . ucfirst($message_type)}();
-
-            // For photos, get the best quality!
-            ($message_type === 'photo') && $doc = end($doc);
-
             $file_id = $doc->getFileId();
             $file    = Request::getFile(['file_id' => $file_id]);
             if ($file->isOk()) {
                 $tg_file_path = $file->getFilePath();
+                Request::sendMessage([
+                    'chat_id' => $chat_id,
+                    'text'  => $tg_file_path,
+                ]);
                 $base_download_uri = str_replace('{API_KEY}', $this->telegram->getApiKey(), '/file/bot{API_KEY}');
                 $parser = new Parser();
                 $pdf = $parser->parseFile("{$base_download_uri}/{$tg_file_path}");
