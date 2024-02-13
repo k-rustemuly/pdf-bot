@@ -70,18 +70,29 @@ class GenericmessageCommand extends SystemCommand
             'chat_id' => $chat_id,
             'text'    => 'xmmmm'
         ];
-        if($message->getType() == 'document') {
-            $doc = call_user_func('get' . $message->getType(), $message);
-            ($message->getType() === 'document') && $doc = $doc[0];
-            $file_id = $doc->getFileId();
-            $file = Request::getFile(['file_id' => $file_id]);
-            if ($file->isOk() && Request::downloadFile($file->getResult())) {
-                $data['text'] = $message->getType() . ' file is located at: ' . $this->telegram->getDownloadPath() . '/' . $file->getResult()->getFilePath();
+        $message_type = $message->getType();
+
+        if($message_type == 'document') {
+            $download_path = $this->telegram->getDownloadPath();
+            if (!is_dir($download_path)) {
+                return $this->replyToChat('Download path has not been defined or does not exist.');
             }
+            $doc = $message->{'get' . ucfirst($message_type)}();
+
+            // For photos, get the best quality!
+            ($message_type === 'photo') && $doc = end($doc);
+
+            $file_id = $doc->getFileId();
+            $file    = Request::getFile(['file_id' => $file_id]);
+            if ($file->isOk() && Request::downloadFile($file->getResult())) {
+                $data['text'] = $message_type . ' file is located at: ' . $download_path . '/' . $file->getResult()->getFilePath();
+            } else {
+                $data['text'] = 'Failed to download.';
+            }
+
         }
         return Request::sendMessage($data);
 
-        // If a conversation is busy, execute the conversation command after handling the message.
         $conversation = new Conversation(
             $message->getFrom()->getId(),
             $message->getChat()->getId()
