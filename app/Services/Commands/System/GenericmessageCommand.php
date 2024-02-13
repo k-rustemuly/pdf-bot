@@ -28,6 +28,7 @@ use Longman\TelegramBot\Request;
 use Smalot\PdfParser\Parser;
 use Illuminate\Support\Str;
 use Longman\TelegramBot\ChatAction;
+use Illuminate\Support\Facades\File;
 
 class GenericmessageCommand extends SystemCommand
 {
@@ -88,14 +89,18 @@ class GenericmessageCommand extends SystemCommand
             $file_id = $doc->getFileId();
             $file    = Request::getFile(['file_id' => $file_id]);
             if ($file->isOk() && Request::downloadFile($file->getResult())) {
+                $filePath = $download_path . '/' . $file->getResult()->getFilePath();
                 $parser = new Parser();
-                $pdf = $parser->parseFile($download_path . '/' . $file->getResult()->getFilePath());
+                $pdf = $parser->parseFile($filePath);
                 $pages = $pdf->getPages();
                 $texts = [];
                 foreach($pages as $page) {
                     $texts = array_merge($texts, collect($page->getTextArray())->map(function ($item) {
                         return Str::squish($item);
                     })->toArray());
+                }
+                if (File::exists($filePath)) {
+                    File::delete($filePath);
                 }
                 $filteredArrays = array_filter($texts, function($v, $k) {
                     return $v == 'Пополнение';
@@ -125,7 +130,32 @@ class GenericmessageCommand extends SystemCommand
                 {
                     $inputs[$month] = count($users);
                 }
-                $data['text'] = json_encode($inputs);
+                $maxMonths = [];
+                for($i=3; $i<=12; $i++) {
+                    if($inputs[$i-2] > 100 && $inputs[$i-1] > 100 && $inputs[$i] > 100) {
+                        $maxMonths = [$i-2, $i-1, $i];
+                        break;
+                    }
+                }
+                $months = [
+                    1 => "Қаңтар",
+                    2 => "Ақпан",
+                    3 => "Наурыз",
+                    4 => "Сәуір",
+                    5 => "Мамыр",
+                    6 => "Маусым",
+                    7 => "Шілде",
+                    8 => "Тамыз",
+                    9 => "Қыркүйек",
+                    10 => "Қазан",
+                    11 => "Қараша",
+                    12 => "Желтоқсан",
+                ];
+                $text = "";
+                foreach($months as $month => $name){
+                    $text.= $name.": Аударым саны - ".$inputs[$month]."\n";
+                }
+                $data['text'] = $text;
             } else {
                 $data['text'] = 'Failed to download.';
             }
