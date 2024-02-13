@@ -44,11 +44,6 @@ class GenericmessageCommand extends SystemCommand
     protected $version = '1.0.0';
 
     /**
-     * @var bool
-     */
-    protected $need_mysql = true;
-
-    /**
      * Command execute method if MySQL is required but not available
      *
      * @return ServerResponse
@@ -68,23 +63,23 @@ class GenericmessageCommand extends SystemCommand
     public function execute(): ServerResponse
     {
         $message = $this->getMessage();
-        // $chat    = $message->getChat();
-        // $chat_id = $chat->getId();
+        $chat    = $message->getChat();
+        $chat_id = $chat->getId();
 
-        // $data = [
-        //     'chat_id' => $chat_id,
-        //     'text'    => 'xmmmm'
-        // ];
-        // if($message->getType() == 'document') {
-        //     $doc = call_user_func('get' . $message->getType(), $message);
-        //     ($message->getType() === 'document') && $doc = $doc[0];
-        //     $file_id = $doc->getFileId();
-        //     $file = Request::getFile(['file_id' => $file_id]);
-        //     if ($file->isOk() && Request::downloadFile($file->getResult())) {
-        //         $data['text'] = $message->getType() . ' file is located at: ' . $this->telegram->getDownloadPath() . '/' . $file->getResult()->getFilePath();
-        //     }
-        // }
-        // return Request::sendMessage($data);
+        $data = [
+            'chat_id' => $chat_id,
+            'text'    => 'xmmmm'
+        ];
+        if($message->getType() == 'document') {
+            $doc = call_user_func('get' . $message->getType(), $message);
+            ($message->getType() === 'document') && $doc = $doc[0];
+            $file_id = $doc->getFileId();
+            $file = Request::getFile(['file_id' => $file_id]);
+            if ($file->isOk() && Request::downloadFile($file->getResult())) {
+                $data['text'] = $message->getType() . ' file is located at: ' . $this->telegram->getDownloadPath() . '/' . $file->getResult()->getFilePath();
+            }
+        }
+        return Request::sendMessage($data);
 
         // If a conversation is busy, execute the conversation command after handling the message.
         $conversation = new Conversation(

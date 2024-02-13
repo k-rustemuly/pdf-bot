@@ -32,7 +32,7 @@ class UploadCommand extends UserCommand
     /**
      * @var string
      */
-    protected $version = '0.2.0';
+    protected $version = '1.2.0';
 
     /**
      * Main command execution
