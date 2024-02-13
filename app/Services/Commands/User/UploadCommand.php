@@ -58,6 +58,7 @@ class UploadCommand extends UserCommand
         $message_type = $message->getType();
 
         if (in_array($message_type, ['audio', 'document', 'photo', 'video', 'voice'], true)) {
+            return $this->replyToChat($message_type);
             $doc = $message->{'get' . ucfirst($message_type)}();
 
             // For photos, get the best quality!
@@ -72,7 +73,7 @@ class UploadCommand extends UserCommand
             }
 
         } else {
-            $data['text'] = 'Please upload the file now'.$download_path;
+            $data['text'] = 'Please upload the file now';
         }
 
         return Request::sendMessage($data);
