@@ -22,6 +22,7 @@ class InfoBot extends TelegramBot
     public function setBot(): void
     {
         $this->telegram->useGetUpdatesWithoutDatabase();
+        $this->telegram->setDownloadPath(storage_path('app'));
         $buttons = AppKeyboardList::getAllButtons();
 
         foreach ($buttons as $button) {
