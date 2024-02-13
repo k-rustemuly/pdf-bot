@@ -90,76 +90,100 @@ class GenericmessageCommand extends SystemCommand
             $file    = Request::getFile(['file_id' => $file_id]);
             if ($file->isOk() && Request::downloadFile($file->getResult())) {
                 $filePath = $download_path . '/' . $file->getResult()->getFilePath();
-                $parser = new Parser();
-                $pdf = $parser->parseFile($filePath);
-                $pages = $pdf->getPages();
-                $texts = [];
-                foreach($pages as $page) {
-                    $texts = array_merge($texts, collect($page->getTextArray())->map(function ($item) {
-                        return Str::squish($item);
-                    })->toArray());
-                }
-                if (File::exists($filePath)) {
-                    File::delete($filePath);
-                }
-                $filteredArrays = array_filter($texts, function($v, $k) {
-                    return $v == 'Пополнение';
-                }, ARRAY_FILTER_USE_BOTH);
-                $keys = array_keys($filteredArrays);
-                $inputs = [
-                    1 => [],
-                    2 => [],
-                    3 => [],
-                    4 => [],
-                    5 => [],
-                    6 => [],
-                    7 => [],
-                    8 => [],
-                    9 => [],
-                    10 => [],
-                    11 => [],
-                    12 => [],
-                ];
-                foreach($keys as $key) {
-                    $date = $texts[$key-2];
-                    $month = (int) Str::of($date)->explode('.')[1];
-                    $user = $texts[$key+1];
-                    $inputs[$month][$user] = 0;
-                }
-                foreach($inputs as $month => $users)
-                {
-                    $inputs[$month] = count($users);
-                }
-                $maxMonths = [];
-                for($i=3; $i<=12; $i++) {
-                    if($inputs[$i-2] > 100 && $inputs[$i-1] > 100 && $inputs[$i] > 100) {
-                        $maxMonths = [$i-2, $i-1, $i];
-                        break;
+                $fileExtension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+                if ($fileExtension === 'pdf') {
+                    $parser = new Parser();
+                    $pdf = $parser->parseFile($filePath);
+                    $pages = $pdf->getPages();
+                    $texts = [];
+                    foreach($pages as $page) {
+                        $texts = array_merge($texts, collect($page->getTextArray())->map(function ($item) {
+                            return Str::squish($item);
+                        })->toArray());
+                    }
+                    if (File::exists($filePath)) {
+                        File::delete($filePath);
+                    }
+                    $filteredArrays = array_filter($texts, function($v, $k) {
+                        return $v == 'Пополнение';
+                    }, ARRAY_FILTER_USE_BOTH);
+                    $keys = array_keys($filteredArrays);
+                    $inputs = [
+                        1 => [],
+                        2 => [],
+                        3 => [],
+                        4 => [],
+                        5 => [],
+                        6 => [],
+                        7 => [],
+                        8 => [],
+                        9 => [],
+                        10 => [],
+                        11 => [],
+                        12 => [],
+                    ];
+                    foreach($keys as $key) {
+                        $date = $texts[$key-2];
+                        $month = (int) Str::of($date)->explode('.')[1];
+                        $user = $texts[$key+1];
+                        $inputs[$month][$user] = 0;
+                    }
+                    foreach($inputs as $month => $users)
+                    {
+                        $inputs[$month] = count($users);
+                    }
+                    $maxMonths = [];
+                    for($i=3; $i<=12; $i++) {
+                        if($inputs[$i-2] > 100 && $inputs[$i-1] > 100 && $inputs[$i] > 100) {
+                            $maxMonths = [$i-2, $i-1, $i];
+                            break;
+                        }
+                    }
+                    $months = [
+                        1 => "Қаңтар",
+                        2 => "Ақпан",
+                        3 => "Наурыз",
+                        4 => "Сәуір",
+                        5 => "Мамыр",
+                        6 => "Маусым",
+                        7 => "Шілде",
+                        8 => "Тамыз",
+                        9 => "Қыркүйек",
+                        10 => "Қазан",
+                        11 => "Қараша",
+                        12 => "Желтоқсан",
+                    ];
+                    $text = "";
+                    foreach($months as $month => $name) {
+                        $sufix = $inputs[$month] > 100 ? ' ❗️' : '';
+                        $text.= $name.": Аударым саны - ".$inputs[$month].$sufix."\n";
+                    }
+                    if(!empty($maxMonths)) {
+                        foreach($maxMonths as $m) {
+                            $text.=$months[$m].' - ';
+                        }
+                        $text = substr($text, 0, -1);
+                        $text.=" айларында 100 аударымнан асқан";
+                        $data['text'] = $text;
+                        Request::sendMessage($data);
+                        $data['text'] = "Клиенттерден төлемдерді картаға қабылдайсыз ба?\nБұл мәселені тезірек тоқтатып, тек кәсіпкерлік шотты пайдаланыңыз. \nОдан басқа бизнесті бөлшектеуге тыйым салынып жатыр.\nОның белгілері қандай? НДС-сыз жұмыс істеуге болатын салық режимі қандай?\nЖұмыс берушілер енді қандай пенсионканың жаңа түрін төлеу керек?";
+                        Request::sendMessage($data);
+                        $data['text'] = 'Биыл жаңалық көп. Бәрінен уақытылы хабардар болып отырамын десеңіз, білікті бухгалтер, салық консультанты Гүлнұр Нұрланқызының парақшасына тіркеліп алыңыздар 👇';
+                        Request::sendMessage($data);
+                        $data['text'] = 'https://www.instagram.com/gulnur_nurlanqyzy?igsh=bGd2ZmFtZ2FrdTZ1';
+                        Request::sendMessage($data);
+                        $data['text'] = 'Басқа аударымдарды тексеріп көру үшін /start басыңыз';
+                    }
+                    else{
+                        $data['text'] = $text;
                     }
                 }
-                $months = [
-                    1 => "Қаңтар",
-                    2 => "Ақпан",
-                    3 => "Наурыз",
-                    4 => "Сәуір",
-                    5 => "Мамыр",
-                    6 => "Маусым",
-                    7 => "Шілде",
-                    8 => "Тамыз",
-                    9 => "Қыркүйек",
-                    10 => "Қазан",
-                    11 => "Қараша",
-                    12 => "Желтоқсан",
-                ];
-                $text = "";
-                foreach($months as $month => $name){
-                    $text.= $name.": Аударым саны - ".$inputs[$month]."\n";
+                else {
+                    $data['text'] = 'Файл PDF форматта болуы керек!';
                 }
-                $data['text'] = $text;
             } else {
                 $data['text'] = 'Failed to download.';
             }
-
         }
         return Request::sendMessage($data);
 
