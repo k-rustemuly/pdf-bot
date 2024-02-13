@@ -72,7 +72,7 @@ class GenericmessageCommand extends SystemCommand
 
         $data = [
             'chat_id' => $chat_id,
-            'text'    => 'xmmmm'
+            'text'    => 'PDF форматтағы файлды жүктеңіз!'
         ];
         $message_type = $message->getType();
 
