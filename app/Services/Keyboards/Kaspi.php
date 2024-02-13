@@ -12,7 +12,7 @@ class Kaspi extends TelegramButton
 {
     protected string $buttonKey = 'kaspi';
 
-    protected string $buttonText = 'Выписка с Kaspi.kz';
+    protected string $buttonText = 'Kaspi.kz';
 
     /**
      * @throws TelegramException

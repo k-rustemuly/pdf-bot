@@ -12,7 +12,7 @@ class Halyk extends TelegramButton
 {
     protected string $buttonKey = 'halyk';
 
-    protected string $buttonText = 'Выписка с Halyk Bank';
+    protected string $buttonText = 'Halyk Bank';
 
     /**
      * @throws TelegramException

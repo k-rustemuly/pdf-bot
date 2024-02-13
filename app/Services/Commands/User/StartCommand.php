@@ -46,17 +46,17 @@ class StartCommand extends UserCommand
 
         $message = $this->getMessage();
         $chat    = $message->getChat();
-        $text    = trim($message->getText(true));
+        // $text    = trim($message->getText(true));
         $chat_id = $chat->getId();
-        if(!empty($text))
-        {
-            return Request::sendMessage([
-                'chat_id'       => $chat_id,
-                'text'          => $text,
-            ]);
-        }
+        // if(!empty($text))
+        // {
+        //     return Request::sendMessage([
+        //         'chat_id'       => $chat_id,
+        //         'text'          => $text,
+        //     ]);
+        // }
 
-        return $this->send('Сегодня для тебя 🤌 :', $this->getMessage()->getChat()->getId(), StartKeyboard::make()->getKeyboard());
+        return $this->send('Сәлеметсіз бе! Бұл бот Kaspi Bank немесе Halyk Bank шотыңызда 3 ай қатарынан 100 аударым болған, болмағанын анықтауға арналған. Жұмысты бастау үшін қай банктегі шотыңызды тексергіңіз келетінін таңдаңыз.', $chat_id, StartKeyboard::make()->getKeyboard());
     }
 
     /**
