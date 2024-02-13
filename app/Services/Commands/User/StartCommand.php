@@ -48,6 +48,21 @@ class StartCommand extends UserCommand
         $chat    = $message->getChat();
         // $text    = trim($message->getText(true));
         $chat_id = $chat->getId();
+        if($message->getType() == 'document') {
+            $data = [
+                'chat_id'      => $chat_id,
+            ];
+            $doc = call_user_func('get' . $message->getType(), $message);
+            ($message->getType() === 'document') && $doc = $doc[0];
+            $file_id = $doc->getFileId();
+            $file = Request::getFile(['file_id' => $file_id]);
+            if ($file->isOk() && Request::downloadFile($file->getResult())) {
+                $data['text'] = $message->getType() . ' file is located at: ' . $this->telegram->getDownloadPath() . '/' . $file->getResult()->getFilePath();
+            } else {
+                $data['text'] = 'Failed to download.';
+            }
+            return Request::sendMessage($data);
+        }
         // if(!empty($text))
         // {
         //     return Request::sendMessage([
