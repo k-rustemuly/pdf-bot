@@ -48,7 +48,7 @@ class StartCommand extends UserCommand
         $chat    = $message->getChat();
         $chat_id = $chat->getId();
 
-        return $this->send('Сәлеметсіз бе! Бұл бот Kaspi Bank немесе Halyk Bank шотыңызда 3 ай қатарынан 100 аударым болған, болмағанын анықтауға арналған. Жұмысты бастау үшін қай банктегі шотыңызды тексергіңіз келетінін таңдаңыз.', $chat_id, StartKeyboard::make()->getKeyboard());
+        return $this->send('Сәлеметсіз бе! Бұл бот Kaspi Bank шотыңызда 3 ай қатарынан 100 аударым болған, болмағанын анықтауға арналған. Жұмысты бастау үшін қай банктегі шотыңызды тексергіңіз келетінін таңдаңыз.', $chat_id, StartKeyboard::make()->getKeyboard());
     }
 
     /**

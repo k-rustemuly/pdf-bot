@@ -11,7 +11,7 @@ class StartKeyboard extends TelegramKeyboard
     {
         return new InlineKeyboard(
             [$this->inlineButton(new Kaspi())],
-            [$this->inlineButton(new Halyk())],
+            // [$this->inlineButton(new Halyk())],
         );
     }
 }
