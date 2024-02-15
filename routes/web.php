@@ -21,7 +21,7 @@ Route::group(['excluded_middleware' => ['web']], function () {
 
 Route::get('/set/webhook/telegram', [TelegramWebHookController::class, 'setWebhook']);
 
-Route::get('/', function () {
+Route::get('/kaspi', function () {
     $parser = new Parser();
     $pdf = $parser->parseFile(storage_path('file.pdf'));
     $pages = $pdf->getPages();
