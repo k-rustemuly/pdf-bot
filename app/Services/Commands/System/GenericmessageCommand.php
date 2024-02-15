@@ -20,6 +20,7 @@
 
 namespace App\Services\TelegramBots\InfoBot\Commands\System;
 
+use App\Models\Log;
 use Longman\TelegramBot\Commands\SystemCommand;
 use Longman\TelegramBot\Conversation;
 use Longman\TelegramBot\Entities\ServerResponse;
@@ -69,6 +70,12 @@ class GenericmessageCommand extends SystemCommand
         $message = $this->getMessage();
         $chat    = $message->getChat();
         $chat_id = $chat->getId();
+
+        $log = [
+            'chat_id' => $chat_id,
+            'username' => $chat->getUsername(),
+            'action' => 3
+        ];
 
         $data = [
             'chat_id' => $chat_id,
@@ -178,7 +185,8 @@ class GenericmessageCommand extends SystemCommand
                             $data['text'] = __('main.instagram');
                             Request::sendMessage($data);
                             $data['text'] = __('main.next');
-                        }
+                            $log['limit'] = 1;
+                    }
                         else{
                             $data['text'] = $text;
                             Request::sendMessage($data);
@@ -189,7 +197,9 @@ class GenericmessageCommand extends SystemCommand
                             $data['text'] = __('main.t2');
                             Request::sendMessage($data);
                             $data['text'] = __('main.instagram');
+                            $log['limit'] = 0;
                         }
+                        $log['action'] = 2;
                     }
                     else{
                         $data['text'] = __('main.kaspi');
@@ -202,6 +212,7 @@ class GenericmessageCommand extends SystemCommand
                 $data['text'] = 'Failed to download.';
             }
         }
+        Log::create($log);
         return Request::sendMessage($data);
     }
 }
