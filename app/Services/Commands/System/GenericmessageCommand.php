@@ -72,15 +72,17 @@ class GenericmessageCommand extends SystemCommand
 
         $data = [
             'chat_id' => $chat_id,
-            'text'    => 'PDF форматтағы файлды жүктеңіз!'
+            'text'    => __('main.pdf')
         ];
         $message_type = $message->getType();
 
         if($message_type == 'document') {
+
             Request::sendChatAction([
                 'chat_id' => $chat_id,
                 'action'  => ChatAction::TYPING,
             ]);
+
             $download_path = $this->telegram->getDownloadPath();
             if (!is_dir($download_path)) {
                 return $this->replyToChat('Download path has not been defined or does not exist.');
@@ -104,107 +106,102 @@ class GenericmessageCommand extends SystemCommand
                     if (File::exists($filePath)) {
                         File::delete($filePath);
                     }
-                    $filteredArrays = array_filter($texts, function($v, $k) {
-                        return $v == 'Пополнение';
-                    }, ARRAY_FILTER_USE_BOTH);
-                    $keys = array_keys($filteredArrays);
-                    $inputs = [
-                        1 => [],
-                        2 => [],
-                        3 => [],
-                        4 => [],
-                        5 => [],
-                        6 => [],
-                        7 => [],
-                        8 => [],
-                        9 => [],
-                        10 => [],
-                        11 => [],
-                        12 => [],
-                    ];
-                    foreach($keys as $key) {
-                        $date = $texts[$key-2];
-                        $month = (int) Str::of($date)->explode('.')[1];
-                        $user = $texts[$key+1];
-                        $inputs[$month][$user] = 0;
-                    }
-                    foreach($inputs as $month => $users)
-                    {
-                        $inputs[$month] = count($users);
-                    }
-                    $maxMonths = [];
-                    for($i=3; $i<=12; $i++) {
-                        if($inputs[$i-2] > 100 && $inputs[$i-1] > 100 && $inputs[$i] > 100) {
-                            $maxMonths = [$i-2, $i-1, $i];
-                            break;
+                    if (strpos($texts[0], 'kaspi') !== false) {
+                        $filteredArrays = array_filter($texts, function($v, $k) {
+                            return $v == 'Пополнение' || $v == 'Толықтыру' || $v == 'Replenishment';
+                        }, ARRAY_FILTER_USE_BOTH);
+                        $keys = array_keys($filteredArrays);
+                        $inputs = [
+                            1 => [],
+                            2 => [],
+                            3 => [],
+                            4 => [],
+                            5 => [],
+                            6 => [],
+                            7 => [],
+                            8 => [],
+                            9 => [],
+                            10 => [],
+                            11 => [],
+                            12 => [],
+                        ];
+                        foreach($keys as $key) {
+                            $date = $texts[$key-2];
+                            if(substr_count($date, '.') == 2) {
+                                $month = (int) Str::of($date)->explode('.')[1];
+                                $user = $texts[$key+1];
+                                $inputs[$month][$user] = 0;
+                            }
                         }
-                    }
-                    $months = [
-                        1 => "Қаңтар",
-                        2 => "Ақпан",
-                        3 => "Наурыз",
-                        4 => "Сәуір",
-                        5 => "Мамыр",
-                        6 => "Маусым",
-                        7 => "Шілде",
-                        8 => "Тамыз",
-                        9 => "Қыркүйек",
-                        10 => "Қазан",
-                        11 => "Қараша",
-                        12 => "Желтоқсан",
-                    ];
-                    $text = "";
-                    foreach($months as $month => $name) {
-                        $sufix = $inputs[$month] > 100 ? ' ❗️' : '';
-                        $text.= $name.": Аударым саны - ".$inputs[$month].$sufix."\n";
-                    }
-                    if(!empty($maxMonths)) {
-                        foreach($maxMonths as $m) {
-                            $text.=$months[$m].' - ';
+                        foreach($inputs as $month => $users)
+                        {
+                            $inputs[$month] = count($users);
                         }
-                        $text = substr($text, 0, -1);
-                        $text.=" айларында 100 аударымнан асқан";
-                        $data['text'] = $text;
-                        Request::sendMessage($data);
-                        $data['text'] = "Клиенттерден төлемдерді картаға қабылдайсыз ба?\nБұл мәселені тезірек тоқтатып, тек кәсіпкерлік шотты пайдаланыңыз. \nОдан басқа бизнесті бөлшектеуге тыйым салынып жатыр.\nОның белгілері қандай? НДС-сыз жұмыс істеуге болатын салық режимі қандай?\nЖұмыс берушілер енді қандай пенсионканың жаңа түрін төлеу керек?";
-                        Request::sendMessage($data);
-                        $data['text'] = 'Биыл жаңалық көп. Бәрінен уақытылы хабардар болып отырамын десеңіз, білікті бухгалтер, салық консультанты Гүлнұр Нұрланқызының парақшасына тіркеліп алыңыздар 👇';
-                        Request::sendMessage($data);
-                        $data['text'] = 'https://www.instagram.com/gulnur_nurlanqyzy?igsh=bGd2ZmFtZ2FrdTZ1';
-                        Request::sendMessage($data);
-                        $data['text'] = 'Басқа аударымдарды тексеріп көру үшін /start басыңыз';
+                        $maxMonths = [];
+                        for($i=3; $i<=12; $i++) {
+                            if($inputs[$i-2] > 100 && $inputs[$i-1] > 100 && $inputs[$i] > 100) {
+                                $maxMonths = [$i-2, $i-1, $i];
+                                break;
+                            }
+                        }
+                        $months = [
+                            1 => "Қаңтар",
+                            2 => "Ақпан",
+                            3 => "Наурыз",
+                            4 => "Сәуір",
+                            5 => "Мамыр",
+                            6 => "Маусым",
+                            7 => "Шілде",
+                            8 => "Тамыз",
+                            9 => "Қыркүйек",
+                            10 => "Қазан",
+                            11 => "Қараша",
+                            12 => "Желтоқсан",
+                        ];
+                        $text = "";
+                        foreach($months as $month => $name) {
+                            $sufix = $inputs[$month] > 100 ? ' ❗️' : '';
+                            $text.= $name.": ".__('main.count')." - ".$inputs[$month].$sufix."\n";
+                        }
+                        if(!empty($maxMonths)) {
+                            foreach($maxMonths as $m) {
+                                $text.=$months[$m].' - ';
+                            }
+                            $text = substr($text, 0, -1);
+                            $text.=__('main.more');
+                            $data['text'] = $text;
+                            Request::sendMessage($data);
+                            $data['text'] = __('main.t1');
+                            Request::sendMessage($data);
+                            $data['text'] = __('main.t2');
+                            Request::sendMessage($data);
+                            $data['text'] = __('main.instagram');
+                            Request::sendMessage($data);
+                            $data['text'] = __('main.next');
+                        }
+                        else{
+                            $data['text'] = $text;
+                            Request::sendMessage($data);
+                            $data['text'] = __('main.t3');
+                            Request::sendMessage($data);
+                            $data['text'] = __('main.t4');
+                            Request::sendMessage($data);
+                            $data['text'] = __('main.t2');
+                            Request::sendMessage($data);
+                            $data['text'] = __('main.instagram');
+                        }
                     }
                     else{
-                        $data['text'] = $text;
-                        Request::sendMessage($data);
-                        $data['text'] = "Сізге уайымдаудың қажеті жоқ. 3 ай қатарынан 100 аударымнан  асқан айлар болмаған екен. Бірақ, кәсіпкер болсаңыз, ары қарай кәсіпті заңды жүргізіп, төлемдерді тек кәсіпкерлік шотқа қабылдауға кеңес береміз.";
-                        Request::sendMessage($data);
-                        $data['text'] = "Одан басқа бизнесті бөлшектеуге тыйым салынып жатыр. Оның белгілері қандай? НДС-сыз жұмыс істеуге болатын салық режимі қандай? Жұмыс берушілер енді қандай пенсионканың жаңа түрін төлеу керек?";
-                        Request::sendMessage($data);
-                        $data['text'] = 'Биыл жаңалық көп. Бәрінен уақытылы хабардар болып отырамын десеңіз, білікті бухгалтер, салық консультанты Гүлнұр Нұрланқызының парақшасына тіркеліп алыңыздар 👇';
-                        Request::sendMessage($data);
-                        $data['text'] = 'https://www.instagram.com/gulnur_nurlanqyzy?igsh=bGd2ZmFtZ2FrdTZ1';
+                        $data['text'] = __('main.kaspi');
                     }
                 }
                 else {
-                    $data['text'] = 'Файл PDF форматта болуы керек!';
+                    $data['text'] = __('main.pdf_format');
                 }
             } else {
                 $data['text'] = 'Failed to download.';
             }
         }
         return Request::sendMessage($data);
-
-        $conversation = new Conversation(
-            $message->getFrom()->getId(),
-            $message->getChat()->getId()
-        );
-
-        // Fetch conversation command if it exists and execute it.
-        if ($conversation->exists() && $command = $conversation->getCommand()) {
-            return $this->telegram->executeCommand($command);
-        }
-
-        return Request::emptyResponse();
     }
 }
